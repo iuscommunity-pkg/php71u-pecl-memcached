@@ -37,7 +37,7 @@ BuildRequires: %{php}-json
 BuildRequires: %{php}-pecl-igbinary-devel
 %{?with_msgpack:BuildRequires: %{php}-pecl-msgpack-devel}
 BuildRequires: libevent-devel  > 2
-BuildRequires: libmemcached-devel > 1.0.16
+BuildRequires: libmemcached-devel >= 1.0.16
 BuildRequires: zlib-devel
 BuildRequires: cyrus-sasl-devel
 BuildRequires: fastlz-devel
@@ -282,6 +282,7 @@ fi
 * Thu Feb 09 2017 Carl George <carl.george@rackspace.com> - 3.0.1-1.ius
 - Port from Fedora to IUS
 - Disable msgpack
+- Relax minimum version of libmemcached
 
 * Thu Feb  9 2017 Remi Collet <remi@fedoraproject.org> - 3.0.1-1
 - update to 3.0.1 (php 7, stable)
