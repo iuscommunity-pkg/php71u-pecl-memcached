@@ -1,3 +1,5 @@
+# IUS spec file for php71u-pecl-memcached, forked from:
+#
 # Fedora spec file for php-pecl-memcached
 #
 # Copyright (c) 2009-2017 Remi Collet
@@ -12,11 +14,12 @@
 %global pecl_name   memcached
 # After 40-igbinary, 40-json, 40-msgpack
 %global ini_name    50-%{pecl_name}.ini
+%global php         php71u
 
 Summary:      Extension to work with the Memcached caching daemon
-Name:         php-pecl-memcached
+Name:         %{php}-pecl-%{pecl_name}
 Version:      3.0.1
-Release:      1%{?dist}
+Release:      1.ius%{?dist}
 License:      PHP
 Group:        Development/Languages
 URL:          http://pecl.php.net/package/%{pecl_name}
@@ -26,12 +29,12 @@ Source0:      http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
 # https://github.com/php-memcached-dev/php-memcached/pull/319
 Patch0:       %{pecl_name}-pr319.patch
 
-BuildRequires: php-devel >= 7
-BuildRequires: php-pear
-BuildRequires: php-json
-BuildRequires: php-pecl-igbinary-devel
+BuildRequires: pecl >= 1.10.0
+BuildRequires: %{php}-devel
+BuildRequires: %{php}-json
+BuildRequires: %{php}-pecl-igbinary-devel
 %ifnarch ppc64
-BuildRequires: php-pecl-msgpack-devel
+BuildRequires: %{php}-pecl-msgpack-devel
 %endif
 BuildRequires: libevent-devel  > 2
 BuildRequires: libmemcached-devel > 1.0.16
@@ -42,18 +45,38 @@ BuildRequires: fastlz-devel
 BuildRequires: memcached
 %endif
 
-Requires:     php-json%{?_isa}
-Requires:     php-igbinary%{?_isa}
+Requires(post): pecl >= 1.10.0
+Requires(postun): pecl >= 1.10.0
+Requires:     %{php}-json%{?_isa}
+Requires:     %{php}-pecl-igbinary%{?_isa}
 Requires:     php(zend-abi) = %{php_zend_api}
 Requires:     php(api) = %{php_core_api}
 %ifnarch ppc64
-Requires:     php-msgpack%{?_isa}
+Requires:     %{php}-msgpack%{?_isa}
 %endif
 
+# provide the stock name
+Provides:     php-pecl-%{pecl_name} = %{version}
+Provides:     php-pecl-%{pecl_name}%{?_isa} = %{version}
+
+# provide the stock and IUS names without pecl
 Provides:     php-%{pecl_name} = %{version}
 Provides:     php-%{pecl_name}%{?_isa} = %{version}
+Provides:     %{php}-%{pecl_name} = %{version}
+Provides:     %{php}-%{pecl_name}%{?_isa} = %{version}
+
+# provide the stock and IUS names in pecl() format
 Provides:     php-pecl(%{pecl_name}) = %{version}
 Provides:     php-pecl(%{pecl_name})%{?_isa} = %{version}
+Provides:     %{php}-pecl(%{pecl_name}) = %{version}
+Provides:     %{php}-pecl(%{pecl_name})%{?_isa} = %{version}
+
+# conflict with the stock name
+Conflicts:    php-pecl-%{pecl_name} < %{version}
+
+%{?filter_provides_in: %filter_provides_in %{php_extdir}/.*\.so$}
+%{?filter_provides_in: %filter_provides_in %{php_ztsextdir}/.*\.so$}
+%{?filter_setup}
 
 
 %description
@@ -61,13 +84,13 @@ This extension uses libmemcached library to provide API for communicating
 with memcached servers.
 
 memcached is a high-performance, distributed memory object caching system,
-generic in nature, but intended for use in speeding up dynamic web 
+generic in nature, but intended for use in speeding up dynamic web
 applications by alleviating database load.
 
-It also provides a session handler (memcached). 
+It also provides a session handler (memcached).
 
 
-%prep 
+%prep
 %setup -c -q
 mv %{pecl_name}-%{version}%{?prever} NTS
 
@@ -79,17 +102,17 @@ sed -e 's/role="test"/role="src"/' \
 
 rm -r NTS/fastlz
 
-cd NTS
+pushd NTS
 %patch0 -p1 -b .pr319
 
-# Chech version as upstream often forget to update this
+# Check version as upstream often forget to update this
 extver=$(sed -n '/#define PHP_MEMCACHED_VERSION/{s/.* "//;s/".*$//;p}' php_memcached.h)
 if test "x${extver}" != "x%{version}%{?gh_date:-dev}%{?intver}"; then
    : Error: Upstream HTTP version is now ${extver}, expecting %{version}.
    : Update the pdover macro and rebuild.
    exit 1
 fi
-cd ..
+popd
 
 cat > %{ini_name} << 'EOF'
 ; Enable %{pecl_name} extension module
@@ -135,16 +158,18 @@ peclconf() {
            --with-system-fastlz \
            --with-php-config=$1
 }
-cd NTS
+pushd NTS
 %{_bindir}/phpize
 peclconf %{_bindir}/php-config
 make %{?_smp_mflags}
+popd
 
 %if %{with_zts}
-cd ../ZTS
+pushd ZTS
 %{_bindir}/zts-phpize
 peclconf %{_bindir}/zts-php-config
 make %{?_smp_mflags}
+popd
 %endif
 
 
@@ -157,7 +182,7 @@ make install -C NTS INSTALL_ROOT=%{buildroot}
 install -D -m 644 %{ini_name} %{buildroot}%{php_inidir}/%{ini_name}
 
 # Install XML package description
-install -D -m 644 package.xml %{buildroot}%{pecl_xmldir}/%{name}.xml
+install -D -m 644 package.xml %{buildroot}%{pecl_xmldir}/%{pecl_name}.xml
 
 # Install the ZTS extension
 %if %{with_zts}
@@ -166,10 +191,11 @@ install -D -m 644 %{ini_name} %{buildroot}%{php_ztsinidir}/%{ini_name}
 %endif
 
 # Documentation
-cd NTS
+pushd NTS
 for i in $(grep 'role="doc"' ../package.xml | sed -e 's/^.*name="//;s/".*$//')
 do install -Dpm 644 $i %{buildroot}%{pecl_docdir}/%{pecl_name}/$i
 done
+popd
 
 
 %check
@@ -232,10 +258,20 @@ exit $ret
 %endif
 
 
+%post
+%{pecl_install} %{pecl_xmldir}/%{pecl_name}.xml >/dev/null || :
+
+
+%postun
+if [ $1 -eq 0 ]; then
+    %{pecl_uninstall} %{pecl_name} >/dev/null || :
+fi
+
+
 %files
 %license NTS/LICENSE
 %doc %{pecl_docdir}/%{pecl_name}
-%{pecl_xmldir}/%{name}.xml
+%{pecl_xmldir}/%{pecl_name}.xml
 
 %config(noreplace) %{php_inidir}/%{ini_name}
 %{php_extdir}/%{pecl_name}.so
@@ -247,6 +283,9 @@ exit $ret
 
 
 %changelog
+* Thu Feb 09 2017 Carl George <carl.george@rackspace.com> - 3.0.1-1.ius
+- Port from Fedora to IUS
+
 * Thu Feb  9 2017 Remi Collet <remi@fedoraproject.org> - 3.0.1-1
 - update to 3.0.1 (php 7, stable)
 - switch to pecl sources
