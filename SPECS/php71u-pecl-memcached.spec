@@ -16,6 +16,8 @@
 %global ini_name    50-%{pecl_name}.ini
 %global php         php71u
 
+%bcond_with msgpack
+
 Summary:      Extension to work with the Memcached caching daemon
 Name:         %{php}-pecl-%{pecl_name}
 Version:      3.0.1
@@ -33,9 +35,7 @@ BuildRequires: pecl >= 1.10.0
 BuildRequires: %{php}-devel
 BuildRequires: %{php}-json
 BuildRequires: %{php}-pecl-igbinary-devel
-%ifnarch ppc64
-BuildRequires: %{php}-pecl-msgpack-devel
-%endif
+%{?with_msgpack:BuildRequires: %{php}-pecl-msgpack-devel}
 BuildRequires: libevent-devel  > 2
 BuildRequires: libmemcached-devel > 1.0.16
 BuildRequires: zlib-devel
@@ -51,9 +51,7 @@ Requires:     %{php}-json%{?_isa}
 Requires:     %{php}-pecl-igbinary%{?_isa}
 Requires:     php(zend-abi) = %{php_zend_api}
 Requires:     php(api) = %{php_core_api}
-%ifnarch ppc64
-Requires:     %{php}-msgpack%{?_isa}
-%endif
+%{?with_msgpack:Requires: %{php}-msgpack%{?_isa}}
 
 # provide the stock name
 Provides:     php-pecl-%{pecl_name} = %{version}
@@ -147,9 +145,7 @@ peclconf() {
 %configure --enable-memcached-igbinary \
            --enable-memcached-json \
            --enable-memcached-sasl \
-%ifnarch ppc64
-           --enable-memcached-msgpack \
-%endif
+%{?with_msgpack: --enable-memcached-msgpack} \
 %if 1
            --disable-memcached-protocol \
 %else
@@ -285,6 +281,7 @@ fi
 %changelog
 * Thu Feb 09 2017 Carl George <carl.george@rackspace.com> - 3.0.1-1.ius
 - Port from Fedora to IUS
+- Disable msgpack
 
 * Thu Feb  9 2017 Remi Collet <remi@fedoraproject.org> - 3.0.1-1
 - update to 3.0.1 (php 7, stable)
