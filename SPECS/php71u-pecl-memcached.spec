@@ -142,11 +142,7 @@ peclconf() {
            --enable-memcached-json \
            --enable-memcached-sasl \
 %{?with_msgpack: --enable-memcached-msgpack} \
-%if 1
-           --disable-memcached-protocol \
-%else
            --enable-memcached-protocol \
-%endif
            --with-system-fastlz \
            --with-php-config=$1
 }
@@ -278,6 +274,7 @@ fi
 * Mon Feb 20 2017 Carl George <carl.george@rackspace.com> - 3.0.3-1.ius
 - Latest upstream
 - Patch0 resolved upstream
+- Build with --enable-memcached-protocol option (Fedora)
 
 * Thu Feb 09 2017 Carl George <carl.george@rackspace.com> - 3.0.1-1.ius
 - Port from Fedora to IUS
