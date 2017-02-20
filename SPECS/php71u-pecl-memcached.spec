@@ -20,16 +20,13 @@
 
 Summary:      Extension to work with the Memcached caching daemon
 Name:         %{php}-pecl-%{pecl_name}
-Version:      3.0.1
+Version:      3.0.3
 Release:      1.ius%{?dist}
 License:      PHP
 Group:        Development/Languages
 URL:          http://pecl.php.net/package/%{pecl_name}
 
 Source0:      http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
-
-# https://github.com/php-memcached-dev/php-memcached/pull/319
-Patch0:       %{pecl_name}-pr319.patch
 
 BuildRequires: pecl >= 1.10.0
 BuildRequires: %{php}-devel
@@ -101,7 +98,6 @@ sed -e 's/role="test"/role="src"/' \
 rm -r NTS/fastlz
 
 pushd NTS
-%patch0 -p1 -b .pr319
 
 # Check version as upstream often forget to update this
 extver=$(sed -n '/#define PHP_MEMCACHED_VERSION/{s/.* "//;s/".*$//;p}' php_memcached.h)
@@ -279,6 +275,10 @@ fi
 
 
 %changelog
+* Mon Feb 20 2017 Carl George <carl.george@rackspace.com> - 3.0.3-1.ius
+- Latest upstream
+- Patch0 resolved upstream
+
 * Thu Feb 09 2017 Carl George <carl.george@rackspace.com> - 3.0.1-1.ius
 - Port from Fedora to IUS
 - Disable msgpack
