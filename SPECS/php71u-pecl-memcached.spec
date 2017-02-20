@@ -131,6 +131,10 @@ EOF
 # default options with description from upstream
 cat NTS/memcached.ini >>%{ini_name}
 
+# Disable binary protocol by default to avoid warnings for libmemcached 1.0.16.
+# See https://github.com/php-memcached-dev/php-memcached/issues/310 for more information.
+sed -e '/^memcached.sess_binary_protocol = / s|On|Off|' -i %{ini_name}
+
 %if %{with_zts}
 cp -r NTS ZTS
 %endif
@@ -275,6 +279,7 @@ fi
 - Latest upstream
 - Patch0 resolved upstream
 - Build with --enable-memcached-protocol option (Fedora)
+- Disable binary protocol by default to avoid warnings for libmemcached 1.0.16
 
 * Thu Feb 09 2017 Carl George <carl.george@rackspace.com> - 3.0.1-1.ius
 - Port from Fedora to IUS
