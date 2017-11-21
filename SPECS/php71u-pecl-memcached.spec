@@ -20,7 +20,7 @@
 
 Summary:      Extension to work with the Memcached caching daemon
 Name:         %{php}-pecl-%{pecl_name}
-Version:      3.0.3
+Version:      3.0.4
 Release:      1.ius%{?dist}
 License:      PHP
 Group:        Development/Languages
@@ -275,6 +275,9 @@ fi
 
 
 %changelog
+* Tue Nov 21 2017 Ben Harper <ben.harper@rackspace.com> - 3.0.4-1.ius
+- Latest upstream
+
 * Mon Feb 20 2017 Carl George <carl.george@rackspace.com> - 3.0.3-1.ius
 - Latest upstream
 - Patch0 resolved upstream
