@@ -33,8 +33,8 @@ BuildRequires: pear1 %{php}-cli %{php}-common %{php}-xml
 BuildRequires: %{php}-json
 BuildRequires: %{php}-pecl-igbinary-devel
 %{?with_msgpack:BuildRequires: %{php}-pecl-msgpack-devel}
-BuildRequires: libevent-devel  > 2
-BuildRequires: libmemcached-devel >= 1.0.16
+BuildRequires: pkgconfig(libevent) >= 2
+BuildRequires: pkgconfig(libmemcached) >= 1.0.16
 BuildRequires: zlib-devel
 BuildRequires: cyrus-sasl-devel
 BuildRequires: fastlz-devel
@@ -269,6 +269,7 @@ fi
 * Tue Jul 02 2019 Carl George <carl@george.computer> - 3.1.3-1
 - Latest upstream
 - Switch from pear1u to pear1
+- Enable EL6 build
 
 * Wed Jan 31 2018 Carl George <carl@george.computer> - 3.0.4-2.ius
 - Remove pear requirement and update scriptlets (adapted from remirepo)
